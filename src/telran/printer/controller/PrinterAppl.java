@@ -11,19 +11,27 @@ public class PrinterAppl {
 		Printer[] printers = new Printer[PRINTERSCOUNT];
 
 		// Printers create. Printer(name, PORTION, TOTALPRINTTIMES)
-		
 		for (int i = 0; i < PRINTERSCOUNT; i++) {
 			printers[i] = new Printer(i, PORTION, TOTALPRINTTIMES);
 		}
-		// set nextPrinter for Printers
+		
+		//create threads
+		Thread[] threads = new Thread[printers.length];
 		for (int i = 0; i < printers.length; i++) {
-			printers[i].setNextPrinter(i == printers.length - 1 ? printers[0] : printers[i + 1]);
-
+			threads[i] = new Thread(printers[i]);
 		}
-		// create first thread
-		Thread thread = new Thread(printers[0]);
-		thread.start();
-		thread.interrupt();
+		
+		//set Next Thread
+		for (int i = 0; i < threads.length; i++) {
+			printers[i].setNextThread(i == threads.length - 1 ? threads[0] : threads[i + 1]);	
+		}
+		
+		//start threads
+		for (int i = 0; i < threads.length; i++) {
+			threads[i].start();
+		}
+		//interrupt first thread
+		threads[0].interrupt();
 		System.out.println("main thread stopped");
 	}
 

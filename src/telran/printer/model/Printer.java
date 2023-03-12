@@ -3,24 +3,23 @@ package telran.printer.model;
 public class Printer implements Runnable {
 	private int threadNumber;
 
-	private Printer nextPrinter = null;
+	private Thread nextThread = null;
 	private int portion;
-	private int printedTimes = 0;
-	private int totalPrintTimes;
+	private int timesNeedToPrint;
 
-	public Printer(int threadNumber, int portion, int totalPrintTimes) {
+	public Printer(int threadNumber, int portion, int timesNeedToPrint) {
 
 		this.threadNumber = threadNumber;
 		this.portion = portion;
-		this.totalPrintTimes = totalPrintTimes;
+		this.timesNeedToPrint = timesNeedToPrint;
 	}
 
-	public Printer getNextPrinter() {
-		return nextPrinter;
+	public Thread getNextPrinter() {
+		return nextThread;
 	}
 
-	public void setNextPrinter(Printer nextPrinter) {
-		this.nextPrinter = nextPrinter;
+	public void setNextThread(Thread nextThread) {
+		this.nextThread = nextThread;
 	}
 
 	@Override
@@ -28,28 +27,35 @@ public class Printer implements Runnable {
 		try {
 			Thread.sleep(100000);
 		} catch (InterruptedException e) {
-			while (printedTimes < totalPrintTimes) {
-
+			while (timesNeedToPrint > 0) {
+				try {
+					//stopper
+					Thread.sleep(150);
+				} catch (InterruptedException e2) {
+				}
 				for (int i = 0; i < portion; i++) {
 					System.out.print(threadNumber);
-					printedTimes++;
-					if(printedTimes>=totalPrintTimes) {
+					timesNeedToPrint--;
+					if (timesNeedToPrint == 0) {
 						break;
 					}
 				}
-				try {
-					System.out.println();
-					Thread next = new Thread(nextPrinter);
-					next.start();
-					Thread.sleep(200);
-					next.interrupt();
 
-				} catch (InterruptedException e1) {
-					e.printStackTrace();
+				System.out.println();
+				nextThread.interrupt();
+
+				if (timesNeedToPrint == 0) {
+					System.out.println("Thread number: " + threadNumber + " Stopped");
+
+					break;
 				}
-				break;
-			}
+				try {
+					Thread.sleep(200000);
+				} catch (InterruptedException e1) {
 
+				}
+
+			}
 		}
 	}
 
